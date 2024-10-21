@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -42,6 +43,7 @@ router.post('/register', [
         res.status(500).send('Error en el servidor');
     }
 });
+
 
 // Login de usuario
 router.post('/login', [

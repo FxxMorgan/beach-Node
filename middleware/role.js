@@ -1,7 +1,9 @@
-module.exports = function(requiredRole) {
-    return (req, res, next) => {
-        if (req.user.role !== requiredRole) {
-            return res.status(403).json({ msg: 'Acceso denegado' });
+
+module.exports = function(rolesPermitidos) {
+    return function(req, res, next) {
+        // Verificar si el rol del usuario está entre los roles permitidos
+        if (!rolesPermitidos.includes(req.user.role)) {
+            return res.status(403).json({ msg: 'Acceso denegado: No tienes permiso para acceder a esta ruta.' });
         }
         next();
     };
