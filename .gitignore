@@ -1,0 +1,15 @@
+# Ignorar la carpeta node_modules
+node_modules/
+
+# Ignorar los archivos de log
+*.log
+
+# Ignorar el archivo de configuración de ambiente
+.env
+
+# Ignorar el directorio de instalación global
+npm-debug.log*
+
+# Ignorar archivos de sistema
+.DS_Store
+Thumbs.db
