@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <title>Sucursales | Beach Dashboard</title>
+    <!-- Favicon-->
+    <link rel="icon" href="../../favicon.ico" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type="text/css">
+
+    <!-- Bootstrap Core Css -->
+    <link href="../../plugins/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+    <!-- Waves Effect Css -->
+    <link href="../../plugins/node-waves/waves.css" rel="stylesheet" />
+
+    <!-- Animation Css -->
+    <link href="../../plugins/animate-css/animate.css" rel="stylesheet" />
+
+    <!-- Custom Css -->
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <!-- Responsiveness Enhancements -->
+    <style>
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .table {
+                font-size: 12px;
+            }
+
+            .form-control {
+                font-size: 14px;
+            }
+
+            .btn {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body class="theme-red">
+    <div class="container-fluid">
+        <!-- Crear Nueva Sucursal -->
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2>Crear Nueva Sucursal</h2>
+                    </div>
+                    <div class="body">
+                        <form id="create-branch-form">
+                            <div class="form-group">
+                                <label for="branch-name">Nombre de la Sucursal</label>
+                                <input type="text" id="branch-name" class="form-control" placeholder="Ingrese nombre de la sucursal" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="branch-type">Rubro</label>
+                                <select id="branch-type" class="form-control">
+                                    <option value="Supermercado">Supermercado</option>
+                                    <option value="Multitienda">Multitienda</option>
+                                    <option value="Ferretería">Ferretería</option>
+                                    <option value="Cabañas">Cabañas</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Crear Sucursal</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de Sucursales -->
+        <div class="row clearfix">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="header">
+                        <h2>Listado de Sucursales</h2>
+                    </div>
+                    <div class="body">
+                        <table class="table table-hover" id="branch-list">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre de Sucursal</th>
+                                    <th>Rubro</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Sucursales se inyectarán dinámicamente aquí -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para editar sucursales -->
+    <div class="modal fade" id="editBranchModal" tabindex="-1" role="dialog" aria-labelledby="editBranchModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editBranchModalLabel">Editar Sucursal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-branch-form">
+                        <input type="hidden" id="edit-branch-id">
+                        <div class="form-group">
+                            <label for="edit-branch-name">Nombre de la Sucursal</label>
+                            <input type="text" id="edit-branch-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-branch-type">Rubro</label>
+                            <select id="edit-branch-type" class="form-control">
+                                <option value="Supermercado">Supermercado</option>
+                                <option value="Multitienda">Multitienda</option>
+                                <option value="Ferretería">Ferretería</option>
+                                <option value="Cabañas">Cabañas</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Jquery Core Js -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- Bootstrap Core Js -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Función para cargar sucursales
+        function loadBranches() {
+            fetch('/api/sucursales')
+                .then(response => response.json())
+                .then(data => {
+                    const branchList = document.getElementById('branch-list').getElementsByTagName('tbody')[0];
+                    branchList.innerHTML = ''; // Limpiar lista
+                    data.forEach(branch => {
+                        const row = branchList.insertRow();
+                        row.insertCell(0).textContent = branch._id;
+                        row.insertCell(1).textContent = branch.name;
+                        row.insertCell(2).textContent = branch.type;
+                        const actionsCell = row.insertCell(3);
+                        actionsCell.innerHTML = `
+                            <button class="btn btn-warning btn-sm" onclick="editBranch('${branch._id}', '${branch.name}', '${branch.type}')">Editar</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteBranch('${branch._id}')">Eliminar</button>
+                        `;
+                    });
+                })
+                .catch(error => console.error('Error al cargar sucursales:', error));
+        }
+
+        // Función para crear una nueva sucursal
+        $('#create-branch-form').on('submit', function(e) {
+            e.preventDefault();
+            const branchName = $('#branch-name').val();
+            const branchType = $('#branch-type').val();
+            fetch('/api/sucursales', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: branchName, type: branchType })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadBranches(); // Recargar lista
+                $('#create-branch-form')[0].reset(); // Limpiar formulario
+            })
+            .catch(error => console.error('Error al crear sucursal:', error));
+        });
+
+        // Función para eliminar una sucursal
+        function deleteBranch(id) {
+            if (confirm('¿Estás seguro de eliminar esta sucursal?')) {
+                fetch(`/api/sucursales/${id}`, { method: 'DELETE' })
+                    .then(response => response.json())
+                    .then(data => {
+                        loadBranches(); // Recargar lista
+                    })
+                    .catch(error => console.error('Error al eliminar sucursal:', error));
+            }
+        }
+
+        // Función para editar sucursal
+        function editBranch(id, name, type) {
+            $('#edit-branch-id').val(id);
+            $('#edit-branch-name').val(name);
+            $('#edit-branch-type').val(type);
+            $('#editBranchModal').modal('show');
+        }
+
+        // Guardar cambios en la sucursal editada
+        $('#edit-branch-form').on('submit', function(e) {
+            e.preventDefault();
+            const id = $('#edit-branch-id').val();
+            const branchName = $('#edit-branch-name').val();
+            const branchType = $('#edit-branch-type').val();
+            fetch(`/api/sucursales/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: branchName, type: branchType })
+            })
+            .then(response => response.json())
+            .then(data => {
+                $('#editBranchModal').modal('hide');
+                loadBranches(); // Recargar lista
+            })
+            .catch(error => console.error('Error al editar sucursal:', error));
+        });
+
+        // Cargar las sucursales al iniciar
+        $(document).ready(function() {
+            loadBranches();
+        });
+    </script>
+</body>
+
+</html>

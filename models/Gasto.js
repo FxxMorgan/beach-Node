@@ -15,7 +15,7 @@ const GastoSchema = new mongoose.Schema({
     required: true
   },
   descripcion: {
-    type: String
+    type: String 
   },
   fecha: {
     type: Date,

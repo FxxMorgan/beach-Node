@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); 
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -22,6 +22,10 @@ const UserSchema = new mongoose.Schema({
     assignedLocal: {
         type: String, // El local que tiene asignado el usuario
         required: false
+    },
+    branch: {
+        type: mongoose.Schema.Types.ObjectId, // Referencia a la sucursal
+        ref: 'Branch' // Asegúrate de que 'Branch' es el nombre correcto del modelo
     }
 });
 

@@ -1,9 +1,8 @@
-
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
-const User = require('../models/User');
+const User = require('../models/User'); // Asegúrate de que esta ruta sea correcta
 const router = express.Router();
 
 // Registro de usuario
@@ -17,33 +16,32 @@ router.post('/register', [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, role, assignedLocal } = req.body;
+    const { name, email, password } = req.body;
 
     try {
         let user = await User.findOne({ email });
         if (user) {
-            return res.status(400).json({ msg: 'El usuario ya existe' });
+            return res.status(400).json({ msg: 'Usuario ya existe' });
         }
 
-        user = new User({ name, email, password, role, assignedLocal });
-
-        // Encriptar password
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(password, salt);
+        user = new User({
+            name,
+            email,
+            password: await bcrypt.hash(password, 10) // Hashear la contraseña
+        });
 
         await user.save();
-
+        
         // Generar token JWT
         const payload = { user: { id: user.id, role: user.role } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token });
+        res.json({ token }); // Respuesta correcta
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Error en el servidor');
     }
 });
-
 
 // Login de usuario
 router.post('/login', [
@@ -72,7 +70,7 @@ router.post('/login', [
         const payload = { user: { id: user.id, role: user.role } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token });
+        res.json({ token }); // Respuesta correcta
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Error en el servidor');

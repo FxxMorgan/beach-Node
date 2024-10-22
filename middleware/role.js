@@ -1,3 +1,4 @@
+// middleware/role.js
 
 module.exports = function(rolesPermitidos) {
     return function(req, res, next) {
@@ -5,6 +6,6 @@ module.exports = function(rolesPermitidos) {
         if (!rolesPermitidos.includes(req.user.role)) {
             return res.status(403).json({ msg: 'Acceso denegado: No tienes permiso para acceder a esta ruta.' });
         }
-        next();
+        next(); // Continúa a la siguiente función si el rol es permitido
     };
 };

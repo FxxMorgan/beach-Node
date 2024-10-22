@@ -9,10 +9,10 @@ const roleCheck = require('../middleware/role');    // Middleware de verificaci√
 
 // @route    POST /api/gastos
 // @desc     Registrar un gasto
-// @access   Private (Solo accesible para roles 'Jefe de Local' y 'Encargado')
+// @access   Private (Solo accesible para roles 'Jefe de Local', 'Encargado' y 'TI')
 router.post('/', [
     auth, 
-    roleCheck(['Jefe de Local', 'Encargado']),
+    roleCheck(['Jefe de Local', 'Encargado', 'TI']), // Agregar 'TI' aqu√≠
     [
         check('local', 'El nombre del local es obligatorio').not().isEmpty(),
         check('monto', 'El monto del gasto es obligatorio').isNumeric(),

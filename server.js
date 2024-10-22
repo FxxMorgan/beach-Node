@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
 
 // Cargar variables de entorno
 dotenv.config();
@@ -14,7 +15,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(bodyParser.json());
 
 // Conectar a MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -24,9 +25,11 @@ mongoose.connect(process.env.MONGO_URI, {
   .catch(err => console.log(err));
 
 // Rutas
-app.use('/api/auth', require('./routes/auth'));  // <-- Verifica este archivo
-app.use('/api/ventas', require('./routes/ventas'));  // <-- Verifica este archivo
-app.use('/api/gastos', require('./routes/gastos'));  // <-- Verifica este archivo
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/ventas', require('./routes/ventas'));  
+app.use('/api/gastos', require('./routes/gastos'));  
+app.use('/api/sucursales', require('./routes/branch'));
+app.use('/api/usuarios', require('./routes/users'));
 
 // Ruta principal
 app.get('/', (req, res) => {
