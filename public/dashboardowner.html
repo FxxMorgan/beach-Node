@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Dueño</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="../../favicon.ico" type="image/x-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f9;
+        }
+
+        .content {
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="content p-8">
+        <h1 class="text-3xl font-bold mb-8">Dashboard Dueño</h1>
+
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">Supermercados</h2>
+            <table id="supermercadosTable" class="display w-full"></table>
+            <div class="chart-container">
+                <canvas id="supermercadosChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">Ferreterías</h2>
+            <table id="ferreteriasTable" class="display w-full"></table>
+            <div class="chart-container">
+                <canvas id="ferreteriasChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">Multitienda</h2>
+            <table id="multitiendaTable" class="display w-full"></table>
+            <div class="chart-container">
+                <canvas id="multitiendaChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 class="text-xl font-semibold mb-4">Cabaña</h2>
+            <table id="cabanaTable" class="display w-full"></table>
+            <div class="chart-container">
+                <canvas id="cabanaChart"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        const fetchData = async (endpoint) => {
+            const token = localStorage.getItem('token');
+            const headers = {
+                'x-auth-token': token,
+                'Content-Type': 'application/json'
+            };
+            const response = await fetch(endpoint, { headers });
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
+            }
+            return response.json();
+        };
+
+        const createChart = (elementId, label, data, color) => {
+            const ctx = document.getElementById(elementId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => new Date(d.fecha).toLocaleDateString()),
+                    datasets: [{
+                        label: label,
+                        data: data.map(d => d.monto),
+                        borderColor: color,
+                        backgroundColor: color.replace('1)', '0.1)'),
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$ ' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        };
+
+        const loadTablesAndCharts = async () => {
+            try {
+                const [supermercadosData, ferreteriasData, multitiendaData, cabanaData] = await Promise.all([
+                    fetchData('/api/supermercados'),
+                    fetchData('/api/ferreterias'),
+                    fetchData('/api/multitienda'),
+                    fetchData('/api/cabana')
+                ]);
+
+                $('#supermercadosTable').DataTable({
+                    data: supermercadosData,
+                    columns: [
+                        { title: "Fecha", data: "fecha" },
+                        { title: "Monto", data: "monto" },
+                        { title: "Sucursal", data: "sucursal" }
+                    ]
+                });
+                createChart('supermercadosChart', 'Supermercados', supermercadosData, 'rgba(75, 192, 192, 1)');
+
+                $('#ferreteriasTable').DataTable({
+                    data: ferreteriasData,
+                    columns: [
+                        { title: "Fecha", data: "fecha" },
+                        { title: "Monto", data: "monto" },
+                        { title: "Sucursal", data: "sucursal" }
+                    ]
+                });
+                createChart('ferreteriasChart', 'Ferreterías', ferreteriasData, 'rgba(255, 99, 132, 1)');
+
+                $('#multitiendaTable').DataTable({
+                    data: multitiendaData,
+                    columns: [
+                        { title: "Fecha", data: "fecha" },
+                        { title: "Monto", data: "monto" },
+                        { title: "Sucursal", data: "sucursal" }
+                    ]
+                });
+                createChart('multitiendaChart', 'Multitienda', multitiendaData, 'rgba(54, 162, 235, 1)');
+
+                $('#cabanaTable').DataTable({
+                    data: cabanaData,
+                    columns: [
+                        { title: "Fecha", data: "fecha" },
+                        { title: "Monto", data: "monto" },
+                        { title: "Sucursal", data: "sucursal" }
+                    ]
+                });
+                createChart('cabanaChart', 'Cabaña', cabanaData, 'rgba(153, 102, 255, 1)');
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        loadTablesAndCharts();
+    </script>
+</body>
+
+</html>

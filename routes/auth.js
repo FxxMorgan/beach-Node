@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { check, validationResult } = require('express-validator');
-const User = require('../models/User'); // Asegúrate de que esta ruta sea correcta
+const User = require('../models/User'); 
 const router = express.Router();
 
 // Registro de usuario
@@ -27,7 +27,7 @@ router.post('/register', [
         user = new User({
             name,
             email,
-            password: await bcrypt.hash(password, 10) // Hashear la contraseña
+            password: await bcrypt.hash(password, 10)
         });
 
         await user.save();
@@ -36,7 +36,7 @@ router.post('/register', [
         const payload = { user: { id: user.id, role: user.role } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token }); // Respuesta correcta
+        res.json({ token });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Error en el servidor');
@@ -70,7 +70,13 @@ router.post('/login', [
         const payload = { user: { id: user.id, role: user.role } };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token }); // Respuesta correcta
+        res.cookie('token', token, { httpOnly: true });
+
+        if (user.role === 'Dueño') {
+            return res.redirect('/dashboard_owner.html'); // Redirigir al dashboard del dueño
+        } else {
+            return res.redirect('/index.html'); // Redirigir al dashboard normal
+        }
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Error en el servidor');

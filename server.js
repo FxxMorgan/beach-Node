@@ -30,6 +30,10 @@ app.use('/api/ventas', require('./routes/ventas'));
 app.use('/api/gastos', require('./routes/gastos'));  
 app.use('/api/sucursales', require('./routes/branch'));
 app.use('/api/usuarios', require('./routes/users'));
+app.use('/api/supermercados', require('./routes/supermercados'));
+app.use('/api/ferreterias', require('./routes/ferreterias'));
+app.use('/api/multitienda', require('./routes/multitienda'));
+app.use('/api/cabanas', require('./routes/cabanas'));
 
 // Ruta principal
 app.get('/', (req, res) => {

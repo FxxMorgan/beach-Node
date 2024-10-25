@@ -34,10 +34,16 @@
         .content {
             margin-left: 250px;
         }
+
         .card {
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
         }
     </style>
 </head>
@@ -92,11 +98,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div class="card p-6">
                     <h2 class="text-xl font-semibold mb-4">Ventas</h2>
-                    <canvas id="ventasChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="ventasChart"></canvas>
+                    </div>
                 </div>
                 <div class="card p-6">
                     <h2 class="text-xl font-semibold mb-4">Gastos</h2>
-                    <canvas id="gastosChart"></canvas>
+                    <div class="chart-container">
+                        <canvas id="gastosChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -107,6 +117,7 @@
                         <tr>
                             <th class="text-left">Fecha</th>
                             <th class="text-left">Monto Ventas</th>
+                            <th class="text-left">Sucursal</th>
                             <th class="text-left">Monto Gastos</th>
                         </tr>
                     </thead>
@@ -118,7 +129,6 @@
         </main>
     </div>
 
-
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -127,36 +137,54 @@
     <script>
         const fetchData = async () => {
             try {
+                const token = localStorage.getItem('token'); // Suponiendo que el token se guarda en localStorage
+                const headers = {
+                    'x-auth-token': token,
+                    'Content-Type': 'application/json'
+                };
+
                 const [ventasResponse, gastosResponse] = await Promise.all([
-                    fetch('/ventas'),
-                    fetch('/gastos')
+                    fetch('/api/ventas', { headers }),
+                    fetch('/api/gastos', { headers })
                 ]);
-    
+
+                if (!ventasResponse.ok || !gastosResponse.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+
                 const ventasData = await ventasResponse.json();
                 const gastosData = await gastosResponse.json();
-    
-                // Fill the reports table
-                const table = document.getElementById('informesTable');
-                const tbody = table.tBodies[0];
-                tbody.innerHTML = '';
-    
-                ventasData.forEach((venta, index) => {
-                    const gasto = gastosData[index] || {};
-                    const row = table.insertRow();
-                    row.innerHTML = `
-                        <td>${venta.fecha}</td>
-                        <td>${venta.monto}</td>
-                        <td>${gasto.monto || 0}</td>
-                    `;
+
+                console.log('Ventas Data:', ventasData);
+                console.log('Gastos Data:', gastosData);
+
+                // Fill the reports table using DataTables
+                $('#informesTable').DataTable({
+                    data: ventasData.map((venta, index) => {
+                        const gasto = gastosData[index] || {};
+                        return [
+                            new Date(venta.fecha).toLocaleDateString(),
+                            venta.monto,
+                            venta.local,
+                            gasto.monto || 0
+                        ];
+                    }),
+                    columns: [
+                        { title: "Fecha" },
+                        { title: "Monto Ventas" },
+                        { title: "Sucursal" },
+                        { title: "Monto Gastos" }
+                    ],
+                    destroy: true
                 });
-    
+
                 // Create charts
                 const createChart = (elementId, label, data, color) => {
                     const ctx = document.getElementById(elementId).getContext('2d');
                     return new Chart(ctx, {
                         type: 'line',
                         data: {
-                            labels: data.map(d => d.fecha),
+                            labels: data.map(d => new Date(d.fecha).toLocaleDateString()),
                             datasets: [{
                                 label: label,
                                 data: data.map(d => d.monto),
@@ -204,15 +232,15 @@
                         }
                     });
                 };
-    
+
                 createChart('ventasChart', 'Ventas', ventasData, 'rgba(75, 192, 192, 1)');
                 createChart('gastosChart', 'Gastos', gastosData, 'rgba(255, 99, 132, 1)');
-    
+
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
-    
+
         fetchData();
     </script>
 </body>
