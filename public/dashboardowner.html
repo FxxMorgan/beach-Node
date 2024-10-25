@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Dueño</title>
+    <title>Dashboard</title>
 
     <!-- Favicon -->
     <link rel="icon" href="../../favicon.ico" type="image/x-icon">
@@ -23,197 +23,104 @@
 
     <!-- Custom CSS -->
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f4f6f9;
-        }
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
 
-        .content {
-            margin: 0 auto;
-            max-width: 1200px;
-        }
+#dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
 
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            padding: 20px;
-        }
+.branch-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    flex: 1;
+    min-width: 300px;
+}
 
-        .chart-container {
-            position: relative;
-            height: 400px;
-        }
-    </style>
-</head>
+.card {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.card h3 {
+    margin: 0 0 10px;
+}
+
+</style>
 
 <body>
-    <main class="content p-8">
-        <h1 class="text-3xl font-bold mb-8">Dashboard Dueño</h1>
-
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-4">Supermercados</h2>
-            <table id="supermercadosTable" class="display w-full"></table>
-            <div class="chart-container">
-                <canvas id="supermercadosChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-4">Ferreterías</h2>
-            <table id="ferreteriasTable" class="display w-full"></table>
-            <div class="chart-container">
-                <canvas id="ferreteriasChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-4">Multitienda</h2>
-            <table id="multitiendaTable" class="display w-full"></table>
-            <div class="chart-container">
-                <canvas id="multitiendaChart"></canvas>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2 class="text-xl font-semibold mb-4">Cabaña</h2>
-            <table id="cabanaTable" class="display w-full"></table>
-            <div class="chart-container">
-                <canvas id="cabanaChart"></canvas>
-            </div>
-        </div>
-    </main>
-
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <div id="dashboard">
+        <!-- Cards will be dynamically inserted here -->
+    </div>
 
     <script>
-        const fetchData = async (endpoint) => {
-            const token = localStorage.getItem('token');
-            const headers = {
-                'x-auth-token': token,
-                'Content-Type': 'application/json'
-            };
-            const response = await fetch(endpoint, { headers });
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
-            }
-            return response.json();
-        };
+        document.addEventListener('DOMContentLoaded', async () => {
+            const dashboard = document.getElementById('dashboard');
 
-        const createChart = (elementId, label, data, color) => {
-            const ctx = document.getElementById(elementId).getContext('2d');
-            return new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: data.map(d => new Date(d.fecha).toLocaleDateString()),
-                    datasets: [{
-                        label: label,
-                        data: data.map(d => d.monto),
-                        borderColor: color,
-                        backgroundColor: color.replace('1)', '0.1)'),
-                        fill: true,
-                        tension: 0.4,
-                        pointRadius: 4,
-                        pointHoverRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return '$ ' + value.toLocaleString();
-                                }
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 45
-                            }
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
-                    }
+            // Fetch ventas and gastos data
+            const ventasResponse = await fetch('/api/ventas');
+            const ventas = await ventasResponse.json();
+
+            const gastosResponse = await fetch('/api/gastos');
+            const gastos = await gastosResponse.json();
+
+            // Group data by branch and category
+            const data = {};
+
+            // Process ventas data
+            ventas.forEach(venta => {
+                if (!data[venta.branch]) {
+                    data[venta.branch] = { ventas: [], gastos: [] };
                 }
+                data[venta.branch].ventas.push(venta);
             });
-        };
 
-        const loadTablesAndCharts = async () => {
-    try {
-        const [supermercadosData, ferreteriasData, multitiendaData, cabanasData] = await Promise.all([
-            fetchData('/api/supermercados'),
-            fetchData('/api/ferreterias'),
-            fetchData('/api/multitienda'),
-            fetchData('/api/cabanas')  // Corrige el endpoint aquí
-        ]);
+            // Process gastos data
+            gastos.forEach(gasto => {
+                if (!data[gasto.branch]) {
+                    data[gasto.branch] = { ventas: [], gastos: [] };
+                }
+                data[gasto.branch].gastos.push(gasto);
+            });
 
-                $('#supermercadosTable').DataTable({
-                    data: supermercadosData,
-                    columns: [
-                        { title: "Fecha", data: "fecha" },
-                        { title: "Monto", data: "monto" },
-                        { title: "Sucursal", data: "sucursal" }
-                    ]
-                });
-                createChart('supermercadosChart', 'Supermercados', supermercadosData, 'rgba(75, 192, 192, 1)');
+            // Create cards for each branch and category
+            for (const branch in data) {
+                const branchData = data[branch];
 
-                $('#ferreteriasTable').DataTable({
-                    data: ferreteriasData,
-                    columns: [
-                        { title: "Fecha", data: "fecha" },
-                        { title: "Monto", data: "monto" },
-                        { title: "Sucursal", data: "sucursal" }
-                    ]
-                });
-                createChart('ferreteriasChart', 'Ferreterías', ferreteriasData, 'rgba(255, 99, 132, 1)');
+                const branchCard = document.createElement('div');
+                branchCard.className = 'branch-card';
 
-                $('#multitiendaTable').DataTable({
-                    data: multitiendaData,
-                    columns: [
-                        { title: "Fecha", data: "fecha" },
-                        { title: "Monto", data: "monto" },
-                        { title: "Sucursal", data: "sucursal" }
-                    ]
-                });
-                createChart('multitiendaChart', 'Multitienda', multitiendaData, 'rgba(54, 162, 235, 1)');
+                const branchTitle = document.createElement('h2');
+                branchTitle.textContent = `Branch: ${branch}`;
+                branchCard.appendChild(branchTitle);
 
-                $('#cabanaTable').DataTable({
-                    data: cabanaData,
-                    columns: [
-                        { title: "Fecha", data: "fecha" },
-                        { title: "Monto", data: "monto" },
-                        { title: "Sucursal", data: "sucursal" }
-                    ]
-                });
-                createChart('cabanaChart', 'Cabaña', cabanaData, 'rgba(153, 102, 255, 1)');
+                // Create ventas card
+                const ventasCard = document.createElement('div');
+                ventasCard.className = 'card';
+                ventasCard.innerHTML = `<h3>Ventas</h3><p>${branchData.ventas.length} ventas</p>`;
+                branchCard.appendChild(ventasCard);
 
-            } catch (error) {
-                console.error('Error fetching data:', error);
+                // Create gastos card
+                const gastosCard = document.createElement('div');
+                gastosCard.className = 'card';
+                gastosCard.innerHTML = `<h3>Gastos</h3><p>${branchData.gastos.length} gastos</p>`;
+                branchCard.appendChild(gastosCard);
+
+                dashboard.appendChild(branchCard);
             }
-        };
-
-        loadTablesAndCharts();
+        });
     </script>
 </body>
-
 </html>

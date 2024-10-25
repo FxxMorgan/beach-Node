@@ -42,6 +42,39 @@ router.post('/', [
     }
 });
 
+
+// Add branch filtering to the existing GET route
+router.get('/', auth, async (req, res) => {
+    const { local, tipo, branch } = req.query;
+
+    try {
+        let query = {};
+        
+        // Filter by local
+        if (local) {
+            query.local = local;
+        }
+
+        // Filter by tipo
+        if (tipo) {
+            query.tipo = tipo;
+        }
+
+        // Filter by branch
+        if (branch) {
+            query.branch = branch;
+        }
+
+        const gastos = await Gasto.find(query)
+            .populate('registradoPor', 'name')
+            .sort({ fecha: -1 });
+
+        res.json(gastos);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Error en el servidor');
+    }
+});
 // @route    GET /api/gastos
 // @desc     Obtener todos los gastos
 // @access   Private (Acceso para todos los roles)

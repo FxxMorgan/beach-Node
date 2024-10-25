@@ -25,7 +25,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background-color: #fb5a05;
+            background-color: #000;
             z-index: -1;
             top: 0;
             left: 0;
@@ -102,13 +102,13 @@
                     }
                 },
                 "color": {
-                    "value": "#0070b9"
+                    "value": "#ffffff"
                 },
                 "shape": {
                     "type": "circle",
                     "stroke": {
                         "width": 0,
-                        "color": "#0070b9"
+                        "color": "#000000"
                     }
                 },
                 "opacity": {
@@ -179,39 +179,39 @@
             },
             "retina_detect": true
         });
-
-        // Manejo del evento de inicio de sesión
+ 
+        // Inicio de sesión
         document.getElementById('sign_in').addEventListener('submit', async function (e) {
-            e.preventDefault(); // Evitar el envío del formulario
+    e.preventDefault(); // Evita el envío del formulario
 
-            const email = this.email.value;
-            const password = this.password.value;
+    const email = this.email.value;
+    const password = this.password.value;
 
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text(); // Ver el error
-                    console.error('Error:', errorText);
-                    throw new Error('Error de inicio de sesión');
-                }
-
-                const data = await response.json();
-                localStorage.setItem('token', data.token); // Guardar el token en localStorage
-
-                // Redirigir a index.html
-                window.location.href = 'index.html';
-
-            } catch (error) {
-                alert(error.message); // Mostrar mensaje de error
-            }
+    try {
+        const response = await fetch('http://localhost:5000/api/auth/login', { // Agrega 'http://localhost:5000' aquí
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
         });
+
+        if (!response.ok) {
+            const errorText = await response.text(); // Ver el error
+            console.error('Error:', errorText);
+            throw new Error('Error de inicio de sesión: ' + errorText);
+        }
+
+        const data = await response.json();
+        localStorage.setItem('token', data.token); // Guardar el token en localStorage
+        window.location.href = 'index.html'; // Redirigir a index.html
+
+    } catch (error) {
+        alert(error.message); // Mostrar mensaje de error
+    }
+});
+
+
     </script>
 </body>
 

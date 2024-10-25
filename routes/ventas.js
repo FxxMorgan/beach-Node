@@ -41,6 +41,32 @@ router.post('/', [
     }
 });
 
+
+// Add branch filtering to the existing GET route
+router.get('/', auth, async (req, res) => {
+    const { local, branch } = req.query;
+
+    try {
+        let query = {};
+        
+        // Filter by local
+        if (local) {
+            query.local = local;
+        }
+
+        // Filter by branch
+        if (branch) {
+            query.branch = branch;
+        }
+
+        const ventas = await Venta.find(query).sort({ fecha: -1 });
+        res.json(ventas);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Error en el servidor');
+    }
+});
+
 // @route    GET /api/ventas
 // @desc     Obtener todas las ventas, con opción de filtro por local
 // @access   Private (Acceso para todos los roles)

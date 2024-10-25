@@ -24,16 +24,14 @@ mongoose.connect(process.env.MONGO_URI, {
 }).then(() => console.log('Conectado a MongoDB'))
   .catch(err => console.log(err));
 
-// Rutas
-app.use('/api/auth', require('./routes/auth'));
+// Importar rutas después de conectar a MongoDB
+const authRoutes = require('./routes/auth'); // Asegúrate de que esta ruta sea correcta
+app.use('/api/auth', authRoutes); // Esto hace que todas las rutas en auth.js comiencen con /api/auth
+
 app.use('/api/ventas', require('./routes/ventas'));  
 app.use('/api/gastos', require('./routes/gastos'));  
 app.use('/api/sucursales', require('./routes/branch'));
 app.use('/api/usuarios', require('./routes/users'));
-app.use('/api/supermercados', require('./routes/supermercados'));
-app.use('/api/ferreterias', require('./routes/ferreterias'));
-app.use('/api/multitiendas', require('./routes/multitiendas'));
-app.use('/api/cabanas', require('./routes/cabanas'));
 
 // Ruta principal
 app.get('/', (req, res) => {

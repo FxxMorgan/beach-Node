@@ -16,7 +16,7 @@ router.post('/register', [
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body; // Asegúrate de recibir el rol también
 
     try {
         let user = await User.findOne({ email });
@@ -27,16 +27,16 @@ router.post('/register', [
         user = new User({
             name,
             email,
-            password: await bcrypt.hash(password, 10)
+            password: await bcrypt.hash(password, 10),
+            role // Asignar el rol al nuevo usuario
         });
 
         await user.save();
         
-        // Generar token JWT
-        const payload = { user: { id: user.id, role: user.role } };
+        const payload = { user: { id: user.id, role: user.role } }; // Incluye el ID y el rol
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.json({ token });
+        res.json({ token }); // Devuelve el token
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Error en el servidor');
@@ -66,17 +66,10 @@ router.post('/login', [
             return res.status(400).json({ msg: 'Credenciales inválidas' });
         }
 
-        // Generar token JWT
-        const payload = { user: { id: user.id, role: user.role } };
+        const payload = { user: { id: user.id, role: user.role } }; // Incluye el ID y el rol
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.cookie('token', token, { httpOnly: true });
-
-        if (user.role === 'Dueño') {
-            return res.redirect('/dashboard_owner.html'); // Redirigir al dashboard del dueño
-        } else {
-            return res.redirect('/index.html'); // Redirigir al dashboard normal
-        }
+        res.json({ token }); // Devuelve el token
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Error en el servidor');
