@@ -159,13 +159,13 @@
         };
 
         const loadTablesAndCharts = async () => {
-            try {
-                const [supermercadosData, ferreteriasData, multitiendaData, cabanaData] = await Promise.all([
-                    fetchData('/api/supermercados'),
-                    fetchData('/api/ferreterias'),
-                    fetchData('/api/multitienda'),
-                    fetchData('/api/cabana')
-                ]);
+    try {
+        const [supermercadosData, ferreteriasData, multitiendaData, cabanasData] = await Promise.all([
+            fetchData('/api/supermercados'),
+            fetchData('/api/ferreterias'),
+            fetchData('/api/multitienda'),
+            fetchData('/api/cabanas')  // Corrige el endpoint aquí
+        ]);
 
                 $('#supermercadosTable').DataTable({
                     data: supermercadosData,

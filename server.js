@@ -32,12 +32,18 @@ app.use('/api/sucursales', require('./routes/branch'));
 app.use('/api/usuarios', require('./routes/users'));
 app.use('/api/supermercados', require('./routes/supermercados'));
 app.use('/api/ferreterias', require('./routes/ferreterias'));
-app.use('/api/multitienda', require('./routes/multitienda'));
+app.use('/api/multitiendas', require('./routes/multitiendas'));
 app.use('/api/cabanas', require('./routes/cabanas'));
 
 // Ruta principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Manejo de errores
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
 });
 
 // Configuración del puerto
