@@ -1,5 +1,3 @@
-// routes/gastos.js
-
 const express = require('express');
 const router = express.Router();
 const { check, validationResult } = require('express-validator');
@@ -12,11 +10,11 @@ const roleCheck = require('../middleware/role');    // Middleware de verificaci�
 // @access   Private (Solo accesible para roles 'Jefe de Local', 'Encargado' y 'TI')
 router.post('/', [
     auth, 
-    roleCheck(['Jefe de Local', 'Encargado', 'TI']), // Agregar 'TI' aquí
+    roleCheck(['Jefe de Local', 'Encargado', 'TI']), // Verificar roles permitidos
     [
         check('local', 'El nombre del local es obligatorio').not().isEmpty(),
-        check('monto', 'El monto del gasto es obligatorio').isNumeric(),
-        check('tipo', 'El tipo de gasto es obligatorio').isIn(['Fijo', 'Variable']),
+        check('monto', 'El monto del gasto debe ser un número').isNumeric(),
+        check('tipo', 'El tipo de gasto debe ser Fijo o Variable').isIn(['Fijo', 'Variable']),
     ]
 ], async (req, res) => {
     const errors = validationResult(req);
@@ -33,12 +31,13 @@ router.post('/', [
             monto,
             descripcion,
             registradoPor: req.user.id,  // Usuario que hace el registro
+            fecha: new Date(),             // Añadir la fecha actual
         });
 
         const gasto = await nuevoGasto.save();
         res.json(gasto);
     } catch (err) {
-        console.error(err.message);
+        console.error('Error al registrar el gasto:', err.message);
         res.status(500).send('Error en el servidor');
     }
 });
@@ -52,7 +51,7 @@ router.get('/', auth, async (req, res) => {
     try {
         let query = {};
         
-        // Filtrar por local
+        // Filtrar por local si se pasa en la query
         if (local) {
             query.local = local;
         }
@@ -62,10 +61,14 @@ router.get('/', auth, async (req, res) => {
             query.tipo = tipo;
         }
 
-        const gastos = await Gasto.find(query).sort({ fecha: -1 });
+        // Aquí se incluye el populate
+        const gastos = await Gasto.find(query)
+            .populate('registradoPor', 'name') // Obtener solo el campo 'name'
+            .sort({ fecha: -1 });
+
         res.json(gastos);
     } catch (err) {
-        console.error(err.message);
+        console.error('Error al obtener los gastos:', err.message);
         res.status(500).send('Error en el servidor');
     }
 });

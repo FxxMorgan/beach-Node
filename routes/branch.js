@@ -27,7 +27,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT - Editar sucursal
-router.put('/:id', async (req, res) => {
+router.put('/:_id', async (req, res) => {
     try {
         const branch = await Branch.findById(req.params.id);
         if (!branch) return res.status(404).json({ message: 'Sucursal no encontrada' });
@@ -42,7 +42,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE - Eliminar sucursal
-router.delete('/:id', async (req, res) => {
+router.delete('/:_id', async (req, res) => {
     try {
         console.log(`Attempting to delete branch with ID: ${req.params.id}`);
         const branch = await Branch.findById(req.params.id);

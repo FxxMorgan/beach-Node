@@ -5,142 +5,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registrar Gasto | Beach Dashboard</title>
+
     <!-- Favicon -->
     <link rel="icon" href="../../favicon.ico" type="image/x-icon">
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&subset=latin,cyrillic-ext" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap Core Css -->
-    <link href="../../plugins/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    <!-- DataTables Css -->
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+    <!-- DataTables CSS -->
     <link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">
 
-    <!-- Waves Effect Css -->
-    <link href="../../plugins/node-waves/waves.css" rel="stylesheet" />
-
-    <!-- Animation Css -->
-    <link href="../../plugins/animate-css/animate.css" rel="stylesheet" />
-
-    <!-- Custom Css -->
-    <link href="../../css/style.css" rel="stylesheet">
+    <!-- Notyf CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
 
     <style>
         body {
-            background-color: #f7f9fc;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f9;
         }
-
+        .sidebar {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+        }
+        .content {
+            margin-left: 250px;
+        }
         .card {
-            border: none;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .header {
-            background-color: #007bff;
-            color: white;
-            padding: 15px;
-            border-radius: 10px 10px 0 0;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-back {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-back:hover {
-            background-color: #5a6268;
-        }
-
-        .container {
-            max-width: 1000px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="header">
-                        <h2 class="text-center">Registrar Gasto</h2>
-                    </div>
-                    <div class="body">
-                        <form id="gasto-form">
-                            <div class="form-group">
-                                <label for="local">Nombre del Local</label>
-                                <select id="local" class="form-control" required>
-                                    <option value="">Seleccione un local</option>
-                                    <!-- Las sucursales se añadirán aquí dinámicamente -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="tipo">Tipo de Gasto</label>
-                                <select id="tipo" class="form-control" required>
-                                    <option value="">Seleccione un tipo</option>
-                                    <option value="Fijo">Fijo</option>
-                                    <option value="Variable">Variable</option>
-                                </select>
-                            </div>
-                            <div class="form-group" id="descripcion-group">
-                                <label for="descripcion">Descripción</label>
-                                <textarea id="descripcion" class="form-control" rows="3" placeholder="Ingrese una descripción opcional"></textarea>
-                            </div>
-                            <div class="form-group" id="fijo-group" style="display: none;">
-                                <label for="fijo-select">Selecciona un gasto fijo</label>
-                                <select id="fijo-select" class="form-control">
-                                    <option value="">Seleccione un gasto fijo</option>
-                                    <option value="Alquiler">Alquiler</option>
-                                    <option value="Sueldos">Sueldos</option>
-                                    <option value="Servicios">Servicios</option>
-                                    <!-- Agregar más gastos fijos según sea necesario -->
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="monto">Monto</label>
-                                <input type="number" id="monto" class="form-control" placeholder="Ingrese el monto del gasto" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Registrar Gasto</button>
-                        </form>
-                        <button id="back-button" class="btn btn-back mt-3">Volver al Dashboard</button>
-                    </div>
-                </div>
+<body class="flex">
+    <!-- Sidebar -->
+    <aside class="sidebar fixed h-screen w-64 p-4">
+        <div class="mb-8">
+            <img src="../../images/logo.png" alt="Logo" class="w-32 mx-auto">
+        </div>
+        <nav>
+            <ul>
+                <li class="mb-4">
+                    <a href="index.html" class="flex items-center text-white hover:bg-blue-600 p-2 rounded">
+                        <span class="material-icons mr-2">dashboard</span>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="gastos.html" class="flex items-center text-white hover:bg-blue-600 p-2 rounded">
+                        <span class="material-icons mr-2">monetization_on</span>
+                        Gastos
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="ventas.html" class="flex items-center text-white hover:bg-blue-600 p-2 rounded">
+                        <span class="material-icons mr-2">shopping_cart</span>
+                        Ventas
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="sucursales.html" class="flex items-center text-white hover:bg-blue-600 p-2 rounded">
+                        <span class="material-icons mr-2">store</span>
+                        Sucursales
+                    </a>
+                </li>
+                <li class="mb-4">
+                    <a href="usuarios.html" class="flex items-center text-white bg-blue-600 p-2 rounded">
+                        <span class="material-icons mr-2">people</span>
+                        Usuarios
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
 
-                <div class="card mt-4">
-                    <div class="header">
-                        <h2 class="text-center">Lista de Gastos</h2>
-                    </div>
-                    <div class="body">
-                        <table id="gastos-table" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Local</th>
-                                    <th>Tipo</th>
-                                    <th>Monto</th>
-                                    <th>Descripción</th>
-                                    <th>Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody id="gastos-body">
-                                <!-- Los gastos se añadirán aquí dinámicamente -->
-                            </tbody>
-                        </table>
-                    </div>
+    <!-- Main Content -->
+    <main class="content flex-grow p-8">
+        <div class="container mx-auto">
+            <div class="card mb-8">
+                <div class="bg-blue-600 text-white p-4 rounded-t-lg">
+                    <h2 class="text-xl font-semibold">Registrar Gasto</h2>
+                </div>
+                <div class="p-6">
+                    <form id="gasto-form">
+                        <div class="mb-4">
+                            <label for="local" class="block mb-2">Nombre del Local</label>
+                            <select id="local" class="w-full p-2 border rounded" required>
+                                <option value="">Seleccione un local</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="tipo" class="block mb-2">Tipo de Gasto</label>
+                            <select id="tipo" class="w-full p-2 border rounded" required>
+                                <option value="">Seleccione un tipo</option>
+                                <option value="Fijo">Fijo</option>
+                                <option value="Variable">Variable</option>
+                            </select>
+                        </div>
+                        <div class="mb-4" id="descripcion-group">
+                            <label for="descripcion" class="block mb-2">Descripción</label>
+                            <textarea id="descripcion" class="w-full p-2 border rounded" rows="3" placeholder="Ingrese una descripción opcional"></textarea>
+                        </div>
+                        <div class="mb-4" id="fijo-group" style="display: none;">
+                            <label for="fijo-select" class="block mb-2">Selecciona un gasto fijo</label>
+                            <select id="fijo-select" class="w-full p-2 border rounded">
+                                <option value="">Seleccione un gasto fijo</option>
+                                <option value="Alquiler">Alquiler</option>
+                                <option value="Sueldos">Sueldos</option>
+                                <option value="Servicios">Servicios</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label for="monto" class="block mb-2">Monto</label>
+                            <input type="number" id="monto" class="w-full p-2 border rounded" placeholder="Ingrese el monto del gasto" required>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">Registrar Gasto</button>
+                    </form>
+                    <button id="back-button" class="mt-4 w-full bg-gray-600 text-white p-2 rounded hover:bg-gray-700">Volver al Dashboard</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="bg-blue-600 text-white p-4 rounded-t-lg">
+                    <h2 class="text-xl font-semibold">Lista de Gastos</h2>
+                </div>
+                <div class="p-6">
+                    <table id="gastos-table" class="w-full">
+                        <thead>
+                            <tr>
+                                <th>Local</th>
+                                <th>Tipo</th>
+                                <th>Monto</th>
+                                <th>Descripción</th>
+                                <th>Fecha</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gastos-body">
+                            <!-- Los gastos se añadirán aquí dinámicamente -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Jquery Core Js -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -148,17 +162,20 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <!-- DataTables Js -->
     <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
-
+    <!-- Notyf Js -->
+    <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
+    
     <script>
         $(document).ready(function() {
-            const token = localStorage.getItem('authToken'); // Obtener el token del localStorage
-
+            const notyf = new Notyf(); // Inicializar Notyf
+            const token = localStorage.getItem('token'); // Obtener el token del localStorage
+    
             if (!token) {
-                alert('No estás autenticado. Por favor, inicia sesión.');
-                window.location.href = '/login'; // Redirige al login si no hay token
+                notyf.error('No estás autenticado. Por favor, inicia sesión.');
+                window.location.href = '/login.html'; // Redirige al login si no hay token
                 return;
             }
-
+    
             // Obtener los locales de la API
             fetch('/api/sucursales', {
                 headers: {
@@ -176,17 +193,17 @@
                 });
             })
             .catch(error => console.error('Error al obtener sucursales:', error));
-
+    
             const gastosTable = $('#gastos-table').DataTable({
                 columns: [
                     { data: 'local' },
                     { data: 'tipo' },
-                    { data: 'monto' },
+                    { data: 'monto', render: function(data) { return formatCLP(data); } }, // Formatear monto aquí
                     { data: 'descripcion' },
                     { data: 'fecha' },
                 ]
             });
-
+    
             $('#tipo').change(function() {
                 const tipo = $(this).val();
                 if (tipo === 'Fijo') {
@@ -197,17 +214,19 @@
                     $('#fijo-group').hide();
                 }
             });
-
+    
             $('#gasto-form').on('submit', function(event) {
                 event.preventDefault();
-
-                const nuevoGasto = {
-                    local: $('#local').val(),
-                    tipo: $('#tipo').val(),
-                    monto: $('#monto').val(),
-                    descripcion: $('#tipo').val() === 'Fijo' ? $('#fijo-select').val() : $('#descripcion').val(),
-                };
-
+    
+// Al registrar el nuevo gasto
+const nuevoGasto = {
+    local: $('#local').val(),
+    tipo: $('#tipo').val(),
+    monto: $('#monto').val(),
+    descripcion: $('#tipo').val() === 'Fijo' ? $('#fijo-select').val() : $('#descripcion').val(),
+    fecha: new Date().toISOString(), // Almacena la fecha y hora en formato ISO
+};
+    
                 fetch('/api/gastos', {
                     method: 'POST',
                     headers: {
@@ -218,16 +237,22 @@
                 })
                 .then(response => {
                     if (response.ok) {
-                        alert('Gasto registrado con éxito');
+                        notyf.success('Gasto registrado con éxito');
                         $('#gasto-form')[0].reset(); // Reiniciar formulario
-                        gastosTable.row.add(nuevoGasto).draw(); // Añadir gasto a la tabla
+                        gastosTable.row.add({
+                            ...nuevoGasto,
+                            monto: nuevoGasto.monto, // Solo guardar el número aquí
+                        }).draw(); // Añadir gasto a la tabla
                     } else {
-                        alert('Error al registrar gasto');
+                        notyf.error('Error al registrar gasto');
                     }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    notyf.error('Error al registrar gasto. Intenta de nuevo.');
+                });
             });
-
+    
             // Función para cargar los gastos al cargar la página
             function cargarGastos() {
                 fetch('/api/gastos', {
@@ -241,20 +266,35 @@
                 })
                 .then(gastos => {
                     gastos.forEach(gasto => {
-                        gastosTable.row.add(gasto).draw();
+                        gastosTable.row.add({
+    local: gasto.local,
+    tipo: gasto.tipo,
+    monto: gasto.monto,
+    descripcion: gasto.descripcion,
+    fecha: new Date(gasto.fecha).toLocaleString('es-ES') // Formato de fecha y hora
+}).draw();
                     });
                 })
-                .catch(error => console.error('Error al obtener gastos:', error));
+                .catch(error => {
+                    console.error('Error al cargar gastos:', error);
+                    notyf.error('Error al cargar gastos. Intenta de nuevo más tarde.');
+                });
             }
-
-            // Cargar los gastos al cargar la página
+    
+            // Función para formatear el monto en CLP
+            function formatCLP(monto) {
+                return monto.toLocaleString('es-CL', { style: 'currency', currency: 'CLP' });
+            }
+    
+            // Llamar a la función para cargar los gastos
             cargarGastos();
-
-            $('#back-button').on('click', function() {
-                window.location.href = '/dashboard'; // Cambiar a la URL del dashboard
+    
+            $('#back-button').click(function() {
+                window.location.href = '/index.html'; // Cambia a tu ruta de dashboard
             });
         });
     </script>
+    
 </body>
 
 </html>
