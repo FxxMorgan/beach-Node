@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Permisos | Beach Dashboard</title>
+    <link rel="icon" href="../../favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f6f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Gestión de Permisos de Usuarios</h2>
+        <table id="permissions-table" class="w-full table-auto">
+            <thead>
+                <tr>
+                    <th class="px-4 py-2">Usuario</th>
+                    <th class="px-4 py-2">Email</th>
+                    <th class="px-4 py-2">Rol Actual</th>
+                    <th class="px-4 py-2">Permisos</th>
+                    <th class="px-4 py-2">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los usuarios se cargarán dinámicamente aquí -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Notyf para notificaciones -->
+    <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        const notyf = new Notyf();
+        let permissionsTable;
+
+        // Cargar usuarios y sus permisos
+        async function loadPermissions() {
+            try {
+                const response = await fetch('/api/permisos');
+                if (!response.ok) throw new Error('Error al cargar permisos');
+                
+                const users = await response.json();
+                permissionsTable.clear().rows.add(users).draw();
+            } catch (error) {
+                notyf.error('Error al cargar permisos');
+                console.error(error);
+            }
+        }
+
+        // Guardar cambios de permisos
+        async function savePermissions(userId, newPermissions) {
+            try {
+                const response = await fetch(`/api/permisos/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ permissions: newPermissions })
+                });
+                
+                if (response.ok) {
+                    notyf.success('Permisos actualizados con éxito');
+                    loadPermissions();
+                } else {
+                    throw new Error('Error al actualizar permisos');
+                }
+            } catch (error) {
+                notyf.error('Error al actualizar permisos');
+                console.error(error);
+            }
+        }
+
+        $(document).ready(function () {
+            permissionsTable = $('#permissions-table').DataTable({
+                columns: [
+                    { data: 'name' },
+                    { data: 'email' },
+                    { data: 'role' },
+                    {
+                        data: 'permissions',
+                        render: function (permissions) {
+                            return `
+                                <label><input type="checkbox" ${permissions.includes('dashboard') ? 'checked' : ''} /> Dashboard</label>
+                                <label><input type="checkbox" ${permissions.includes('gastos') ? 'checked' : ''} /> Gastos</label>
+                                <label><input type="checkbox" ${permissions.includes('ventas') ? 'checked' : ''} /> Ventas</label>
+                                <label><input type="checkbox" ${permissions.includes('sucursales') ? 'checked' : ''} /> Sucursales</label>
+                                <label><input type="checkbox" ${permissions.includes('usuarios') ? 'checked' : ''} /> Usuarios</label>
+                            `;
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            return `<button onclick="savePermissions('${row._id}', getPermissions('${row._id}'))" class="bg-blue-600 text-white px-4 py-2 rounded">Guardar</button>`;
+                        }
+                    }
+                ]
+            });
+            loadPermissions();
+        });
+
+        // Obtener permisos del formulario
+        function getPermissions(userId) {
+            const permissions = [];
+            $(`#permissions-${userId} input[type="checkbox"]:checked`).each(function () {
+                permissions.push($(this).val());
+            });
+            return permissions;
+        }
+    </script>
+</body>
+</html>

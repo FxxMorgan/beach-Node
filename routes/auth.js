@@ -5,18 +5,20 @@ const { check, validationResult } = require('express-validator');
 const User = require('../models/User'); 
 const router = express.Router();
 
+
 // Registro de usuario
 router.post('/register', [
     check('name', 'El nombre es obligatorio').not().isEmpty(),
     check('email', 'Incluye un email válido').isEmail(),
-    check('password', 'El password debe tener al menos 6 caracteres').isLength({ min: 6 })
+    check('password', 'El password debe tener al menos 6 caracteres').isLength({ min: 6 }),
+    check('permissions', 'Los permisos son obligatorios').isObject() // Validar que permissions sea un objeto
 ], async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { name, email, password, role } = req.body; // Asegúrate de recibir el rol también
+    const { name, email, password, role, permissions } = req.body; // Asegúrate de recibir los permisos también
 
     try {
         let user = await User.findOne({ email });
@@ -27,9 +29,11 @@ router.post('/register', [
         user = new User({
             name,
             email,
-            password: await bcrypt.hash(password, 10),
-            role // Asignar el rol al nuevo usuario
+            password, // Solo asignar la contraseña sin hashear
+            role,
+            permissions // Asignar los permisos al nuevo usuario
         });
+        
 
         await user.save();
         

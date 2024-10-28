@@ -4,6 +4,8 @@ const cors = require('cors');
 const path = require('path');
 const dotenv = require('dotenv');
 const bodyParser = require('body-parser');
+const checkPermission = require('./middleware/checkpermission');
+const authMiddleware = require('./middleware/auth'); // Asegúrate de que la ruta sea correcta
 
 // Cargar variables de entorno
 dotenv.config();
@@ -25,13 +27,19 @@ mongoose.connect(process.env.MONGO_URI, {
   .catch(err => console.log(err));
 
 // Importar rutas después de conectar a MongoDB
-const authRoutes = require('./routes/auth'); // Asegúrate de que esta ruta sea correcta
-app.use('/api/auth', authRoutes); // Esto hace que todas las rutas en auth.js comiencen con /api/auth
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
 
 app.use('/api/ventas', require('./routes/ventas'));  
 app.use('/api/gastos', require('./routes/gastos'));  
 app.use('/api/sucursales', require('./routes/branch'));
 app.use('/api/usuarios', require('./routes/users'));
+app.use('/api/permisos', require('./routes/permisos'));
+
+// Ejemplo de ruta protegida usando el middleware de permisos
+app.get('/api/administracion', [authMiddleware, checkPermission('admin')], (req, res) => {
+    res.json({ msg: 'Acceso concedido a administración' });
+});
 
 // Ruta principal
 app.get('/', (req, res) => {

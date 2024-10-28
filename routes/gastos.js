@@ -3,7 +3,7 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const Gasto = require('../models/Gasto');
 const auth = require('../middleware/auth');         // Middleware de autenticación
-const roleCheck = require('../middleware/role');    // Middleware de verificación de roles
+const roleCheck = require('../middleware/checkpermission');    // Middleware de verificación de roles
 
 // @route    POST /api/gastos
 // @desc     Registrar un gasto

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose'); 
+const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -8,7 +9,8 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        index: true
     },
     password: {
         type: String,
@@ -17,15 +19,33 @@ const UserSchema = new mongoose.Schema({
     role: {
         type: String,
         enum: ['Encargado', 'Jefe de Local', 'TI', 'Dueño'],
-        default: 'Encargado'
+        default: 'Encargado',
+        index: true
     },
     assignedLocal: {
-        type: String, // El local que tiene asignado el usuario
+        type: String,
         required: false
     },
     branch: {
-        type: mongoose.Schema.Types.ObjectId, // Referencia a la sucursal
-        ref: 'Branch' // Asegúrate de que 'Branch' es el nombre correcto del modelo
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Branch'
+    },
+    permissions: {
+            read: { type: Boolean, default: false },
+            write: { type: Boolean, default: false },
+            delete: { type: Boolean, default: false }
+        },
+});
+
+// Middleware para hashear la contraseña antes de guardar
+UserSchema.pre('save', async function(next) {
+    if (!this.isModified('password')) return next();
+    try {
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
+    } catch (error) {
+        return next(error);
     }
 });
 
