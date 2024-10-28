@@ -91,6 +91,29 @@
             </nav>
         </aside>
 
+        <script>
+            document.addEventListener('DOMContentLoaded', (event) => {
+                const userPermissions = JSON.parse(localStorage.getItem('userPermissions')) || [];
+        
+                if (!userPermissions.includes('dashboard')) {
+                    document.getElementById('dashboard-link').style.display = 'none';
+                }
+                if (!userPermissions.includes('usuarios')) {
+                    document.getElementById('usuarios-link').style.display = 'none';
+                }
+                if (!userPermissions.includes('sucursales')) {
+                    document.getElementById('sucursales-link').style.display = 'none';
+                }
+                if (!userPermissions.includes('ventas')) {
+                    document.getElementById('ventas-link').style.display = 'none';
+                }
+                if (!userPermissions.includes('gastos')) {
+                    document.getElementById('gastos-link').style.display = 'none';
+                }
+                
+            });
+        </script>
+
         <!-- Main Content -->
         <main class="content flex-grow p-8">
             <h1 class="text-3xl font-bold mb-8">Dashboard</h1>

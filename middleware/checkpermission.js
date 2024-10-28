@@ -15,6 +15,12 @@ const checkRoleAndPermission = (rolesPermitidos, module, action) => {
 
             console.log('Usuario decodificado:', req.user); // Debug
 
+            // Verificar si el rol TI tiene acceso a todo
+            if (req.user.role === 'TI') {
+                console.log('Acceso total permitido para el rol TI'); // Debug
+                return next();
+            }
+
             // Verificar si el rol está permitido
             if (!rolesPermitidos.includes(req.user.role)) {
                 console.log('Rol no permitido:', req.user.role); // Debug
